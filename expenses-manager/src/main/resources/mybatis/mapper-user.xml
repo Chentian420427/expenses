@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chentian.expenses.dao.UserDao">
+
+	
+	<select id="pageQueryData" resultType="com.chentian.expenses.bean.User">
+		
+		select
+		    * 
+		from t_user
+		<where>
+			<if test="queryText != null">
+				and loginacct like concat('%',#{queryText},'%')
+			</if>
+			 and status=1
+		</where>
+		order by startdate desc
+		limit #{start},#{size}
+	</select>
+	
+	<select id="pageQueryCount" resultType="int">
+		select
+		   count(*) 
+		from t_user
+		<where>
+			<if test="queryText != null">
+				and loginacct like concat('%',#{queryText},'%')
+			</if>
+			 and status=1
+		</where>
+	</select>
+	
+	
+	
+	
+	<insert id="insertUser">
+		insert into t_user(
+			jobnum,loginacct,userpswd,username,sex,agency,startdate,updatedate,status
+		) values(
+			#{jobnum},#{loginacct},#{userpswd},#{username},#{sex},#{agency},#{startdate},#{updatedate},1
+		)
+		
+	</insert>
+	
+	<insert id="insertUserRoles">
+		insert into t_user_role (userid,roleid) values
+		<foreach collection="roleids" item="roleid" separator=",">
+			(#{userid},#{roleid})
+		</foreach>
+	</insert>
+	
+	
+	<update id="updateUser">
+		update t_user
+		set loginacct=#{loginacct},username=#{username},sex=#{sex},jobnum=#{jobnum},agency=#{agency}
+		where id=#{id}
+	</update>
+	
+	
+	
+	
+	<update id="deleUsers">
+		update t_user set status=0 where id in
+		<foreach collection="userids" item="userid" open="(" close=")" separator=",">
+			#{userid}
+		</foreach>
+	</update>
+	
+	<delete id="deleteUserRoles">
+		delete from t_user_role where userid=#{userid} and roleid in
+		<foreach collection="roleids" item="roleid" open="(" close=")" separator=",">
+		#{roleid}
+		</foreach>
+	</delete>
+	
+
+
+</mapper>
